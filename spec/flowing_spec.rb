@@ -10,6 +10,7 @@ describe Flowing do
       desc "Populates context with needed data"
 
       context_reader :config
+      context_reader :time_range, :status
 
       def call
         "I am populating"
@@ -17,7 +18,9 @@ describe Flowing do
     end
 
     it 'explains what action is doing' do
-      expect(Flowing.explain(:populate)).to eq("Populates context with needed data")
+      expect(Flowing.explain(:populate)).to eq(
+        "Populates context with needed data. It reads config, time_range, status"
+      )
     end
   end
 end

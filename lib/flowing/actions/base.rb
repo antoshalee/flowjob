@@ -4,7 +4,12 @@ module Flowing
       attr_reader :context
 
       class << self
+
         def context_reader(*accessors)
+          @context_readers ||= []
+
+          @context_readers += accessors
+
           accessors.each do |accessor|
             define_method accessor do
               return context[accessor]
