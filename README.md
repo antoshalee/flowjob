@@ -1,8 +1,69 @@
 # Flowjob
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/flowjob`. To experiment with that code, run `bin/console` for an interactive prompt.
+Flowjob is a simple ruby library intended to help to organize your code. In a nutshell it allows to put pieces of logic of some long(and often spaghetti) process into separate classes (jobs).
 
-TODO: Delete this and the text above, and describe your gem
+Imagine some complex process consisted of many methods and variables:
+
+```ruby
+def import_from_xml(config, xml_source)
+    raw_object = parse(config, xml_source)
+    sanitized_object = sanitize(config, raw_object)
+    product = build_product(sanitized_object)
+    save_result = save_product(product)
+    write_logs(config, xml_source, product, save_result)
+end
+
+def parse(source)
+  # many lines of code
+end
+
+def sanitize(object)
+  # many lines of code
+end
+...
+def write_logs(config, xml_source, product, save_result)
+  # many lines of code
+end
+```
+
+Flowjob allows you to turn it to somethink like this:
+```ruby
+def import_from_xml(config, xml_source)
+  context = { config: config, xml_source: xml_source }
+  Flowjob::Flow.run(context) do |flow|
+    flow.parse
+    flow.sanitize
+    flow.save_product
+    flow.write_logs
+  end
+end
+
+class Parse < Flowjob::Jobs::Base
+  context_reader :config, :xml_source
+  def call
+    # many lines of code
+    context[:raw_object] = raw_object
+  end
+end
+
+class Sanitize < Flowjob::Jobs::Base
+  context_reader :config, :raw_object
+  def call
+    # many lines of code
+    context[:sanitized_object] = sanitized_object
+  end
+end
+
+class BuildProduct < Flowjob::Jobs::Base
+  context_reader :sanitized_object
+  def call
+    product = Product.build_somehow(sanitized_object)
+  end
+end
+
+# etc
+```
+
 
 ## Installation
 
