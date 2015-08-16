@@ -5,14 +5,15 @@ module Flowing
     class NoActionError < StandardError; end
     attr_reader :context
 
-    def self.run(context)
-      flow = new(context)
+    def self.run(context, options = {})
+      flow = new(context, options)
       yield(flow)
     end
 
     def method_missing(method, *args, &block)
+
       action_class = begin
-        "Flowing::Actions::#{method.to_s.camelize}".constantize
+        "#{@namespace}::#{method.to_s.camelize}".constantize
       rescue
         raise NoActionError, "Unregistered action '#{method}'"
       end
@@ -20,8 +21,9 @@ module Flowing
       action.call(*args)
     end
 
-    def initialize(context)
+    def initialize(context, options = {})
       @context = context
+      @namespace = options[:namespace] || "Flowing::Actions"
     end
   end
 end

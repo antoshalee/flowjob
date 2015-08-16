@@ -88,4 +88,29 @@ describe Flowing::Flow do
       }.to raise_error "Custom error"
     end
   end
+
+  context "Custom namespace" do
+    module ::MyNamespace
+      class FirstAction < Flowing::Actions::Base
+        def call
+          context[:first] = true
+        end
+      end
+
+      class SecondAction < Flowing::Actions::Base
+        def call
+          context[:second] = true
+        end
+      end
+    end
+
+    it "works with specified namespace" do
+      context = {}
+      Flowing::Flow.run(context, namespace: "MyNamespace") do |f|
+        f.first_action
+        f.second_action
+      end
+      expect(context).to eq({first: true, second: true})
+    end
+  end
 end
