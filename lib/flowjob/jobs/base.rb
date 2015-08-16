@@ -1,5 +1,5 @@
 module Flowjob
-  module Actions
+  module Jobs
     class Base
       attr_reader :context
 

@@ -2,7 +2,7 @@ require 'active_support/inflector'
 
 module Flowjob
   class Flow
-    class NoActionError < StandardError; end
+    class NoJobError < StandardError; end
     attr_reader :context
 
     def self.run(context, options = {})
@@ -11,18 +11,18 @@ module Flowjob
     end
 
     def method_missing(method, *args, &block)
-      action_class = begin
+      job_class = begin
         "#{@namespace}::#{method.to_s.camelize}".constantize
       rescue
-        raise NoActionError, "Unregistered action '#{method}'"
+        raise NoJobError, "Unregistered job '#{method}'"
       end
-      action = action_class.new(@context)
-      action.call(*args)
+      job = job_class.new(@context)
+      job.call(*args)
     end
 
     def initialize(context, options = {})
       @context = context
-      @namespace = options[:namespace] || "Flowjob::Actions"
+      @namespace = options[:namespace] || "Flowjob::Jobs"
     end
   end
 end

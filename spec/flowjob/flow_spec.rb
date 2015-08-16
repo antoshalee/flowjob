@@ -3,7 +3,7 @@ require 'ostruct'
 
 describe Flowjob::Flow do
 
-  class Flowjob::Actions::FillCommon < Flowjob::Actions::Base
+  class Flowjob::Jobs::FillCommon < Flowjob::Jobs::Base
     context_reader :destination, :object
 
     def call
@@ -11,7 +11,7 @@ describe Flowjob::Flow do
     end
   end
 
-  class Flowjob::Actions::FillAddress < Flowjob::Actions::Base
+  class Flowjob::Jobs::FillAddress < Flowjob::Jobs::Base
     context_reader :destination, :object
 
     def call
@@ -19,7 +19,7 @@ describe Flowjob::Flow do
     end
   end
 
-  class Flowjob::Actions::CheckArg < Flowjob::Actions::Base
+  class Flowjob::Jobs::CheckArg < Flowjob::Jobs::Base
     context_reader :destination, :object
 
     def call(arg1, arg2)
@@ -59,7 +59,7 @@ describe Flowjob::Flow do
   end
 
   it "passes args directly to call" do
-    expect_any_instance_of(Flowjob::Actions::CheckArg).
+    expect_any_instance_of(Flowjob::Jobs::CheckArg).
       to(receive :call).with("Foo", "Bar")
 
     Flowjob::Flow.run(context) do |f|
@@ -67,16 +67,16 @@ describe Flowjob::Flow do
     end
   end
 
-  context "action missing" do
-    it "raises NoActionError" do
+  context "job missing" do
+    it "raises NoJobError" do
       expect {
-        Flowjob::Flow.run(context) { |f| f.missing_action }
-      }.to raise_error(Flowjob::Flow::NoActionError)
+        Flowjob::Flow.run(context) { |f| f.missing_job }
+      }.to raise_error(Flowjob::Flow::NoJobError)
     end
   end
 
   context "internal exception" do
-    class Flowjob::Actions::BrokenAction < Flowjob::Actions::Base
+    class Flowjob::Jobs::BrokenJob < Flowjob::Jobs::Base
       def call
         raise "Custom error"
       end
@@ -84,20 +84,20 @@ describe Flowjob::Flow do
 
     it "passes original exception" do
       expect {
-        Flowjob::Flow.run(context) { |f| f.broken_action }
+        Flowjob::Flow.run(context) { |f| f.broken_job }
       }.to raise_error "Custom error"
     end
   end
 
   context "Custom namespace" do
     module ::MyNamespace
-      class FirstAction < Flowjob::Actions::Base
+      class FirstJob < Flowjob::Jobs::Base
         def call
           context[:first] = true
         end
       end
 
-      class SecondAction < Flowjob::Actions::Base
+      class SecondJob < Flowjob::Jobs::Base
         def call
           context[:second] = true
         end
@@ -107,8 +107,8 @@ describe Flowjob::Flow do
     it "works with specified namespace" do
       context = {}
       Flowjob::Flow.run(context, namespace: "MyNamespace") do |f|
-        f.first_action
-        f.second_action
+        f.first_job
+        f.second_job
       end
       expect(context).to eq({first: true, second: true})
     end

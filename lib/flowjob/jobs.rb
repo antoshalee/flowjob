@@ -1,4 +1,4 @@
 module Flowjob
-  module Actions
+  module Jobs
   end
 end

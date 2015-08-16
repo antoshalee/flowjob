@@ -6,7 +6,7 @@ describe Flowjob do
   end
 
   describe ".explain" do
-    class Flowjob::Actions::Populate < Flowjob::Actions::Base
+    class Flowjob::Jobs::Populate < Flowjob::Jobs::Base
       desc "Populates context with needed data"
 
       context_reader :config
@@ -17,14 +17,14 @@ describe Flowjob do
       end
     end
 
-    class Flowjob::Actions::NoReaders < Flowjob::Actions::Base
+    class Flowjob::Jobs::NoReaders < Flowjob::Jobs::Base
       desc "Does not read"
 
       def call
       end
     end
 
-    it 'explains what action is doing' do
+    it 'explains what job is doing' do
       expect(Flowjob.explain(:populate)).to eq(
         "Populates context with needed data. It reads config, time_range, status"
       )
