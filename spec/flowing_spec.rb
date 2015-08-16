@@ -17,10 +17,19 @@ describe Flowing do
       end
     end
 
+    class Flowing::Actions::NoReaders < Flowing::Actions::Base
+      desc "Does not read"
+
+      def call
+      end
+    end
+
     it 'explains what action is doing' do
       expect(Flowing.explain(:populate)).to eq(
         "Populates context with needed data. It reads config, time_range, status"
       )
+
+      expect(Flowing.explain(:no_readers)).to eq("Does not read")
     end
   end
 end

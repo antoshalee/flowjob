@@ -4,17 +4,14 @@ module Flowing
       attr_reader :context
 
       class << self
+        attr_accessor :context_readers
+
+        def inherited(base)
+          base.context_readers = []
+        end
 
         def context_reader(*accessors)
-          @context_readers ||= []
-
           @context_readers += accessors
-
-          accessors.each do |accessor|
-            define_method accessor do
-              return context[accessor]
-            end
-          end
         end
 
         def desc(desc)
@@ -24,6 +21,14 @@ module Flowing
 
       def initialize(context)
         @context = context
+      end
+
+      def method_missing(method, *args, &block)
+        if self.class.context_readers.include?(method)
+          @context[method]
+        else
+          super
+        end
       end
 
       def call
