@@ -4,5 +4,10 @@ require "flowing/actions/base"
 require "flowing/flow"
 
 module Flowing
-  # Your code goes here...
+  class << self
+    def explain(action)
+      "Flowing::Actions::#{action.to_s.camelize}".
+        constantize.instance_variable_get(:@desc)
+    end
+  end
 end

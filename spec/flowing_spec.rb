@@ -5,7 +5,19 @@ describe Flowing do
     expect(Flowing::VERSION).not_to be nil
   end
 
-  it 'does something useful' do
-    expect(false).to eq(true)
+  describe ".explain" do
+    class Flowing::Actions::Populate < Flowing::Actions::Base
+      desc "Populates context with needed data"
+
+      context_reader :config
+
+      def call
+        "I am populating"
+      end
+    end
+
+    it 'explains what action is doing' do
+      expect(Flowing.explain(:populate)).to eq("Populates context with needed data")
+    end
   end
 end
