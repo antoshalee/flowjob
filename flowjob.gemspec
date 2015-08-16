@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'flowing/version'
+require 'flowjob/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "flowing"
-  spec.version       = Flowing::VERSION
+  spec.name          = "flowjob"
+  spec.version       = Flowjob::VERSION
   spec.authors       = ["Anton Lee"]
   spec.email         = ["antoshalee@gmail.com"]
 
   spec.summary       = %q{Flow/Context/Action ruby gem}
-  spec.homepage      = "https://github.com/antoshalee/flowing"
+  spec.homepage      = "https://github.com/antoshalee/flowjob"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }

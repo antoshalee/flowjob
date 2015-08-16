@@ -1,6 +1,6 @@
 require 'active_support/inflector'
 
-module Flowing
+module Flowjob
   class Flow
     class NoActionError < StandardError; end
     attr_reader :context
@@ -11,7 +11,6 @@ module Flowing
     end
 
     def method_missing(method, *args, &block)
-
       action_class = begin
         "#{@namespace}::#{method.to_s.camelize}".constantize
       rescue
@@ -23,7 +22,7 @@ module Flowing
 
     def initialize(context, options = {})
       @context = context
-      @namespace = options[:namespace] || "Flowing::Actions"
+      @namespace = options[:namespace] || "Flowjob::Actions"
     end
   end
 end

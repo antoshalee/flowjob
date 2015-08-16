@@ -1,9 +1,9 @@
 require 'spec_helper'
 require 'ostruct'
 
-describe Flowing::Flow do
+describe Flowjob::Flow do
 
-  class Flowing::Actions::FillCommon < Flowing::Actions::Base
+  class Flowjob::Actions::FillCommon < Flowjob::Actions::Base
     context_reader :destination, :object
 
     def call
@@ -11,7 +11,7 @@ describe Flowing::Flow do
     end
   end
 
-  class Flowing::Actions::FillAddress < Flowing::Actions::Base
+  class Flowjob::Actions::FillAddress < Flowjob::Actions::Base
     context_reader :destination, :object
 
     def call
@@ -19,7 +19,7 @@ describe Flowing::Flow do
     end
   end
 
-  class Flowing::Actions::CheckArg < Flowing::Actions::Base
+  class Flowjob::Actions::CheckArg < Flowjob::Actions::Base
     context_reader :destination, :object
 
     def call(arg1, arg2)
@@ -44,7 +44,7 @@ describe Flowing::Flow do
   end
 
   it "works" do
-    Flowing::Flow.run(context) do |flow|
+    Flowjob::Flow.run(context) do |flow|
       flow.fill_common
       flow.fill_address
     end
@@ -53,16 +53,16 @@ describe Flowing::Flow do
   end
 
   it "has access to its context" do
-    Flowing::Flow.run(context) do |f|
+    Flowjob::Flow.run(context) do |f|
       expect(f.context).to eq context
     end
   end
 
   it "passes args directly to call" do
-    expect_any_instance_of(Flowing::Actions::CheckArg).
+    expect_any_instance_of(Flowjob::Actions::CheckArg).
       to(receive :call).with("Foo", "Bar")
 
-    Flowing::Flow.run(context) do |f|
+    Flowjob::Flow.run(context) do |f|
       f.check_arg("Foo", "Bar")
     end
   end
@@ -70,13 +70,13 @@ describe Flowing::Flow do
   context "action missing" do
     it "raises NoActionError" do
       expect {
-        Flowing::Flow.run(context) { |f| f.missing_action }
-      }.to raise_error(Flowing::Flow::NoActionError)
+        Flowjob::Flow.run(context) { |f| f.missing_action }
+      }.to raise_error(Flowjob::Flow::NoActionError)
     end
   end
 
   context "internal exception" do
-    class Flowing::Actions::BrokenAction < Flowing::Actions::Base
+    class Flowjob::Actions::BrokenAction < Flowjob::Actions::Base
       def call
         raise "Custom error"
       end
@@ -84,20 +84,20 @@ describe Flowing::Flow do
 
     it "passes original exception" do
       expect {
-        Flowing::Flow.run(context) { |f| f.broken_action }
+        Flowjob::Flow.run(context) { |f| f.broken_action }
       }.to raise_error "Custom error"
     end
   end
 
   context "Custom namespace" do
     module ::MyNamespace
-      class FirstAction < Flowing::Actions::Base
+      class FirstAction < Flowjob::Actions::Base
         def call
           context[:first] = true
         end
       end
 
-      class SecondAction < Flowing::Actions::Base
+      class SecondAction < Flowjob::Actions::Base
         def call
           context[:second] = true
         end
@@ -106,7 +106,7 @@ describe Flowing::Flow do
 
     it "works with specified namespace" do
       context = {}
-      Flowing::Flow.run(context, namespace: "MyNamespace") do |f|
+      Flowjob::Flow.run(context, namespace: "MyNamespace") do |f|
         f.first_action
         f.second_action
       end

@@ -1,3 +1,3 @@
-module Flowing
+module Flowjob
   VERSION = "0.1.1"
 end

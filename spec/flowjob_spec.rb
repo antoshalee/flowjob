@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe Flowing do
+describe Flowjob do
   it 'has a version number' do
-    expect(Flowing::VERSION).not_to be nil
+    expect(Flowjob::VERSION).not_to be nil
   end
 
   describe ".explain" do
-    class Flowing::Actions::Populate < Flowing::Actions::Base
+    class Flowjob::Actions::Populate < Flowjob::Actions::Base
       desc "Populates context with needed data"
 
       context_reader :config
@@ -17,7 +17,7 @@ describe Flowing do
       end
     end
 
-    class Flowing::Actions::NoReaders < Flowing::Actions::Base
+    class Flowjob::Actions::NoReaders < Flowjob::Actions::Base
       desc "Does not read"
 
       def call
@@ -25,11 +25,11 @@ describe Flowing do
     end
 
     it 'explains what action is doing' do
-      expect(Flowing.explain(:populate)).to eq(
+      expect(Flowjob.explain(:populate)).to eq(
         "Populates context with needed data. It reads config, time_range, status"
       )
 
-      expect(Flowing.explain(:no_readers)).to eq("Does not read")
+      expect(Flowjob.explain(:no_readers)).to eq("Does not read")
     end
   end
 end

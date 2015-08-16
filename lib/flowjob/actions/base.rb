@@ -1,4 +1,4 @@
-module Flowing
+module Flowjob
   module Actions
     class Base
       attr_reader :context
