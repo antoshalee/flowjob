@@ -6,11 +6,11 @@ Imagine some complex process consisted of many methods and variables:
 
 ```ruby
 def import_from_xml(config, xml_source)
-    raw_object = parse(config, xml_source)
-    sanitized_object = sanitize(config, raw_object)
-    product = build_product(sanitized_object)
-    save_result = save_product(product)
-    write_logs(config, xml_source, product, save_result)
+  raw_object = parse(config, xml_source)
+  sanitized_object = sanitize(config, raw_object)
+  product = build_product(sanitized_object)
+  save_result = save_product(product)
+  write_logs(config, xml_source, product, save_result)
 end
 
 def parse(source)
@@ -26,7 +26,7 @@ def write_logs(config, xml_source, product, save_result)
 end
 ```
 
-Flowjob allows you to turn it to somethink like this:
+Flowjob allows you to turn it to something like this:
 ```ruby
 def import_from_xml(config, xml_source)
   context = { config: config, xml_source: xml_source }
