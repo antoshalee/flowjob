@@ -1,17 +1,22 @@
 module Flowjob
   module Jobs
     class Base
-      attr_reader :context
+      # attr_reader :context
 
       class << self
-        attr_accessor :context_readers
+        attr_accessor :context_readers, :context_writers
 
         def inherited(base)
           base.context_readers = []
+          base.context_writers = []
         end
 
         def context_reader(*accessors)
           @context_readers += accessors
+        end
+
+        def context_writer(*accessors)
+          @context_writers += accessors
         end
 
         def desc(desc)
@@ -21,6 +26,14 @@ module Flowjob
 
       def initialize(context)
         @context = context
+      end
+
+      def write_context(key, value)
+        if self.class.context_writers.include?(key)
+          @context[key] = value
+        else
+          raise Flowjob::Errors::ForbiddenContextAccess
+        end
       end
 
       def method_missing(method, *args, &block)

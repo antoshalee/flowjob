@@ -2,6 +2,7 @@ require "flowjob/version"
 require "flowjob/jobs"
 require "flowjob/jobs/base"
 require "flowjob/flow"
+require "flowjob/errors"
 
 module Flowjob
   class << self

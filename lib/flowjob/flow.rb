@@ -2,7 +2,7 @@ require 'active_support/inflector'
 
 module Flowjob
   class Flow
-    class NoJobError < StandardError; end
+
     attr_reader :context
 
     def self.run(context, options = {})
@@ -14,7 +14,7 @@ module Flowjob
       job_class = begin
         "#{@namespace}::#{method.to_s.camelize}".constantize
       rescue
-        raise NoJobError, "Unregistered job '#{method}'"
+        raise Flowjob::Errors::NoJobError, "Unregistered job '#{method}'"
       end
       job = job_class.new(@context)
       job.call(*args)

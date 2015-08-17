@@ -71,7 +71,7 @@ describe Flowjob::Flow do
     it "raises NoJobError" do
       expect {
         Flowjob::Flow.run(context) { |f| f.missing_job }
-      }.to raise_error(Flowjob::Flow::NoJobError)
+      }.to raise_error(Flowjob::Errors::NoJobError)
     end
   end
 
@@ -92,14 +92,16 @@ describe Flowjob::Flow do
   context "Custom namespace" do
     module ::MyNamespace
       class FirstJob < Flowjob::Jobs::Base
+        context_writer :first
         def call
-          context[:first] = true
+          write_context(:first, true)
         end
       end
 
       class SecondJob < Flowjob::Jobs::Base
+        context_writer :second
         def call
-          context[:second] = true
+          write_context(:second, true)
         end
       end
     end
