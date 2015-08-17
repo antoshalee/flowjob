@@ -40,17 +40,19 @@ end
 
 class Parse < Flowjob::Jobs::Base
   context_reader :config, :xml_source
+  context_writer :raw_object
   def call
     # many lines of code
-    context[:raw_object] = raw_object
+    write_context(:raw_object, raw_object)
   end
 end
 
 class Sanitize < Flowjob::Jobs::Base
   context_reader :config, :raw_object
+  context_writer :sanitized_object
   def call
     # many lines of code
-    context[:sanitized_object] = sanitized_object
+    write_context(:sanitized_object, sanitized_object)
   end
 end
 
@@ -63,7 +65,17 @@ end
 
 # etc
 ```
+## Why?
+1. Because it is much simplier to test. You can test each job in isolation. Just provide only required context as Hash object and write expectation what should appear inside it after job execution:
 
+    ```ruby
+      context = { input: 'one' }
+      MultipleByFourJob.new(context).call
+      expect(context[:output]).to eq('eight')
+    ```
+2. This is a common situation when you need to access to previously defined data on the some step of the process. Example: writing original xml source into log after import is finished. No problem - just keep the source in global context during the whole process. You don't need to pass data from one method to another or keep it in tons of instance variables.
+
+3. Now you can understand what the process really do step by step because of simple flow declaraton. All visual garbage is gone.
 
 ## Installation
 
