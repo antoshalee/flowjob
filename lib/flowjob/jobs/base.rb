@@ -1,8 +1,6 @@
 module Flowjob
   module Jobs
     class Base
-      # attr_reader :context
-
       class << self
         attr_accessor :context_readers, :context_writers
 

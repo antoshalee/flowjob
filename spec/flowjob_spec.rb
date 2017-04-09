@@ -5,31 +5,30 @@ describe Flowjob do
     expect(Flowjob::VERSION).not_to be nil
   end
 
-  describe ".explain" do
+  describe '.explain' do
     class Flowjob::Jobs::Populate < Flowjob::Jobs::Base
-      desc "Populates context with needed data"
+      desc 'Does something'
 
       context_reader :config
       context_reader :time_range, :status
 
       def call
-        "I am populating"
+        'I am populating'
       end
     end
 
     class Flowjob::Jobs::NoReaders < Flowjob::Jobs::Base
-      desc "Does not read"
+      desc 'Does not read'
 
       def call
       end
     end
 
     it 'explains what job is doing' do
-      expect(Flowjob.explain(:populate)).to eq(
-        "Populates context with needed data. It reads config, time_range, status"
-      )
+      expect(Flowjob.explain(:populate))
+        .to eq('Does something. It reads config, time_range, status')
 
-      expect(Flowjob.explain(:no_readers)).to eq("Does not read")
+      expect(Flowjob.explain(:no_readers)).to eq('Does not read')
     end
   end
 end

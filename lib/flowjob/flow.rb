@@ -2,7 +2,6 @@ require 'active_support/inflector'
 
 module Flowjob
   class Flow
-
     attr_reader :context
 
     def self.run(context, options = {})
@@ -10,7 +9,7 @@ module Flowjob
       yield(flow)
     end
 
-    def method_missing(method, *args, &block)
+    def method_missing(method, *args)
       job_class = begin
         "#{@namespace}::#{method.to_s.camelize}".constantize
       rescue
@@ -20,9 +19,11 @@ module Flowjob
       job.call(*args)
     end
 
+    DEFAULT_NAMESPACE = 'Flowjob::Jobs'.freeze
+
     def initialize(context, options = {})
       @context = context
-      @namespace = options[:namespace] || "Flowjob::Jobs"
+      @namespace = options[:namespace] || DEFAULT_NAMESPACE
     end
   end
 end

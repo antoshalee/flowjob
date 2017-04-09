@@ -1,8 +1,8 @@
-require "flowjob/version"
-require "flowjob/jobs"
-require "flowjob/jobs/base"
-require "flowjob/flow"
-require "flowjob/errors"
+require 'flowjob/version'
+require 'flowjob/jobs'
+require 'flowjob/jobs/base'
+require 'flowjob/flow'
+require 'flowjob/errors'
 
 module Flowjob
   class << self
@@ -10,9 +10,7 @@ module Flowjob
       job_class = "Flowjob::Jobs::#{job.to_s.camelize}".constantize
       desc = job_class.instance_variable_get(:@desc)
       readers = job_class.context_readers
-      unless readers.empty?
-        desc << ". It reads #{[readers].join(', ')}"
-      end
+      desc << ". It reads #{[readers].join(', ')}" unless readers.empty?
       desc
     end
   end

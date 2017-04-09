@@ -2,7 +2,6 @@ require 'spec_helper'
 require 'ostruct'
 
 describe Flowjob::Flow do
-
   class Flowjob::Jobs::FillCommon < Flowjob::Jobs::Base
     context_reader :destination, :object
 
@@ -43,7 +42,7 @@ describe Flowjob::Flow do
     }
   end
 
-  it "works" do
+  it 'works' do
     Flowjob::Flow.run(context) do |flow|
       flow.fill_common
       flow.fill_address
@@ -52,45 +51,43 @@ describe Flowjob::Flow do
     expect(destination.address).to eq('Kovalevskaya street')
   end
 
-  it "has access to its context" do
+  it 'has access to its context' do
     Flowjob::Flow.run(context) do |f|
       expect(f.context).to eq context
     end
   end
 
-  it "passes args directly to call" do
-    expect_any_instance_of(Flowjob::Jobs::CheckArg).
-      to(receive :call).with("Foo", "Bar")
+  it 'passes args directly to call' do
+    expect_any_instance_of(Flowjob::Jobs::CheckArg)
+      .to receive(:call).with('Foo', 'Bar')
 
     Flowjob::Flow.run(context) do |f|
-      f.check_arg("Foo", "Bar")
+      f.check_arg('Foo', 'Bar')
     end
   end
 
-  context "job missing" do
-    it "raises NoJobError" do
-      expect {
-        Flowjob::Flow.run(context) { |f| f.missing_job }
-      }.to raise_error(Flowjob::Errors::NoJobError)
+  context 'job missing' do
+    it 'raises NoJobError' do
+      expect { Flowjob::Flow.run(context) { |f| f.missing_job } }
+        .to raise_error(Flowjob::Errors::NoJobError)
     end
   end
 
-  context "internal exception" do
+  context 'internal exception' do
     class Flowjob::Jobs::BrokenJob < Flowjob::Jobs::Base
       def call
-        raise "Custom error"
+        raise 'Custom error'
       end
     end
 
-    it "passes original exception" do
-      expect {
-        Flowjob::Flow.run(context) { |f| f.broken_job }
-      }.to raise_error "Custom error"
+    it 'passes original exception' do
+      expect { Flowjob::Flow.run(context) { |f| f.broken_job } }
+        .to raise_error 'Custom error'
     end
   end
 
-  context "Custom namespace" do
-    module ::MyNamespace
+  context 'Custom namespace' do
+    module MyNamespace
       class FirstJob < Flowjob::Jobs::Base
         context_writer :first
         def call
@@ -106,13 +103,13 @@ describe Flowjob::Flow do
       end
     end
 
-    it "works with specified namespace" do
+    it 'works with specified namespace' do
       context = {}
-      Flowjob::Flow.run(context, namespace: "MyNamespace") do |f|
+      Flowjob::Flow.run(context, namespace: 'MyNamespace') do |f|
         f.first_job
         f.second_job
       end
-      expect(context).to eq({first: true, second: true})
+      expect(context).to eq(first: true, second: true)
     end
   end
 end
