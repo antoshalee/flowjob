@@ -5,8 +5,8 @@ module Flowjob
     class << self
       def run(context_data, options = {})
         context = Context.new(context_data.dup)
-        flow = new(context, options)
-        yield(flow)
+
+        yield new(context, options)
 
         context
       end
@@ -14,21 +14,27 @@ module Flowjob
 
     attr_reader :context
 
-    def method_missing(method, *args)
-      job_class = begin
-        "#{@namespace}::#{method.to_s.camelize}".constantize
-      rescue
-        raise Flowjob::Errors::NoJobError, "Unregistered job '#{method}'"
-      end
-      job = job_class.new(@context)
-      job.call(*args)
-    end
-
     DEFAULT_NAMESPACE = 'Flowjob::Jobs'.freeze
 
     def initialize(context, options = {})
       @context = context
-      @namespace = options[:namespace] || DEFAULT_NAMESPACE
+      @namespace = options.fetch(:namespace, DEFAULT_NAMESPACE)
+    end
+
+    def method_missing(method, *args)
+      job_class(method)
+        .new(context)
+        .call(*args)
+    end
+
+    private
+
+    attr_reader :namespace
+
+    def job_class(method)
+      "#{namespace}::#{method.to_s.camelize}".constantize
+    rescue NameError
+      raise Flowjob::Errors::NoJobError, "Unregistered job '#{method}'"
     end
   end
 end
