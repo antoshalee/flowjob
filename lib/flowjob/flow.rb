@@ -2,12 +2,17 @@ require 'active_support/inflector'
 
 module Flowjob
   class Flow
-    attr_reader :context
+    class << self
+      def run(context_data, options = {})
+        context = Context.new(context_data.dup)
+        flow = new(context, options)
+        yield(flow)
 
-    def self.run(context, options = {})
-      flow = new(context, options)
-      yield(flow)
+        context
+      end
     end
+
+    attr_reader :context
 
     def method_missing(method, *args)
       job_class = begin

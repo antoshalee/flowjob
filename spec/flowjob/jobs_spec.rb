@@ -2,34 +2,37 @@ require 'spec_helper'
 
 describe Flowjob::Flow do
   describe '.context_writer' do
+    let(:context_data) { {} }
+    let(:context) { Flowjob::Context.new(context_data) }
+
     context 'job with context' do
       class JobWitContextWriter < Flowjob::Jobs::Base
         context_writer :status
 
         def call
-          write_context(:status, :ok)
+          context.status = :ok
         end
       end
 
-      it 'simply works' do
-        context = {}
-        job = JobWitContextWriter.new(context)
-        job.call()
-        expect(context[:status]).to eq(:ok)
+      subject { JobWitContextWriter.new(context).call }
+
+      specify do
+        subject
+        expect(context.data[:status]).to eq(:ok)
       end
     end
 
     context 'job without context_writer' do
       class JobWithoutContextWriter < Flowjob::Jobs::Base
         def call
-          write_context(:status, :ok)
+          context.status = :ok
         end
       end
 
+      subject { JobWithoutContextWriter.new(context).call }
+
       it 'raises exception' do
-        job = JobWithoutContextWriter.new({})
-        expect { job.call }
-          .to raise_error(Flowjob::Errors::ForbiddenContextAccess)
+        expect { subject }.to be_forbidden
       end
     end
   end

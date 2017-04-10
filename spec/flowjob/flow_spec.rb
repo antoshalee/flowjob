@@ -6,7 +6,7 @@ describe Flowjob::Flow do
     context_reader :destination, :object
 
     def call
-      destination.price = object[:price]
+      context.destination.price = context.object[:price]
     end
   end
 
@@ -14,7 +14,7 @@ describe Flowjob::Flow do
     context_reader :destination, :object
 
     def call
-      destination.address = object[:address]
+      context.destination.address = context.object[:address]
     end
   end
 
@@ -35,7 +35,7 @@ describe Flowjob::Flow do
 
   let(:destination) { OpenStruct.new }
 
-  let(:context) do
+  let(:context_data) do
     {
       destination: destination,
       object: object
@@ -43,7 +43,7 @@ describe Flowjob::Flow do
   end
 
   it 'works' do
-    Flowjob::Flow.run(context) do |flow|
+    described_class.run(context_data) do |flow|
       flow.fill_common
       flow.fill_address
     end
@@ -52,8 +52,8 @@ describe Flowjob::Flow do
   end
 
   it 'has access to its context' do
-    Flowjob::Flow.run(context) do |f|
-      expect(f.context).to eq context
+    described_class.run(context_data) do |f|
+      expect(f.context.data).to eq context_data
     end
   end
 
@@ -61,14 +61,22 @@ describe Flowjob::Flow do
     expect_any_instance_of(Flowjob::Jobs::CheckArg)
       .to receive(:call).with('Foo', 'Bar')
 
-    Flowjob::Flow.run(context) do |f|
+    described_class.run(context_data) do |f|
       f.check_arg('Foo', 'Bar')
     end
   end
 
+  it 'returns context' do
+    expect(
+      described_class.run(context_data) do |f|
+        f.check_arg('Foo', 'Bar')
+      end
+    ).to be_instance_of(Flowjob::Context)
+  end
+
   context 'job missing' do
     it 'raises NoJobError' do
-      expect { Flowjob::Flow.run(context) { |f| f.missing_job } }
+      expect { described_class.run(context_data) { |f| f.missing_job } }
         .to raise_error(Flowjob::Errors::NoJobError)
     end
   end
@@ -81,7 +89,7 @@ describe Flowjob::Flow do
     end
 
     it 'passes original exception' do
-      expect { Flowjob::Flow.run(context) { |f| f.broken_job } }
+      expect { described_class.run(context_data) { |f| f.broken_job } }
         .to raise_error 'Custom error'
     end
   end
@@ -91,25 +99,39 @@ describe Flowjob::Flow do
       class FirstJob < Flowjob::Jobs::Base
         context_writer :first
         def call
-          write_context(:first, true)
+          context.first = true
         end
       end
 
       class SecondJob < Flowjob::Jobs::Base
         context_writer :second
         def call
-          write_context(:second, true)
+          context.second = true
         end
       end
     end
 
-    it 'works with specified namespace' do
-      context = {}
-      Flowjob::Flow.run(context, namespace: 'MyNamespace') do |f|
+    let(:context_data) { {} }
+
+    subject do
+      Flowjob::Flow.run(context_data, namespace: 'MyNamespace') do |f|
         f.first_job
         f.second_job
       end
-      expect(context).to eq(first: true, second: true)
+    end
+
+    it 'works with specified namespace' do
+      expect { subject }.not_to raise_error
+    end
+
+    it 'changes result context' do
+      expect(subject.data[:first]).to eq true
+      expect(subject.data[:second]).to eq true
+    end
+
+    it 'doesnt mutate original context data' do
+      subject
+      expect(context_data).to eq({})
     end
   end
 end

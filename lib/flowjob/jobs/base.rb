@@ -24,23 +24,11 @@ module Flowjob
 
       def initialize(context)
         @context = context
+        @context.allow_readers(*self.class.context_readers)
+        @context.allow_writers(*self.class.context_writers)
       end
 
-      def write_context(key, value)
-        if self.class.context_writers.include?(key)
-          @context[key] = value
-        else
-          raise Flowjob::Errors::ForbiddenContextAccess
-        end
-      end
-
-      def method_missing(method, *args, &block)
-        if self.class.context_readers.include?(method)
-          @context[method]
-        else
-          super
-        end
-      end
+      attr_reader :context
 
       def call
         raise NotImplementedError
