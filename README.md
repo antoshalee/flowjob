@@ -6,10 +6,10 @@ Imagine some complex process consisted of many methods and variables:
 
 ```ruby
 def import_from_xml(config, xml_source)
-  raw_object = parse(config, xml_source)
-  sanitized_object = sanitize(config, raw_object)
-  product = build_product(sanitized_object)
-  save_result = save_product(product)
+  raw_object        = parse(config, xml_source)
+  sanitized_object  = sanitize(config, raw_object)
+  product           = build_product(sanitized_object)
+  save_result       = save_product(product)
   write_logs(config, xml_source, product, save_result)
 end
 
@@ -29,8 +29,7 @@ end
 Flowjob allows you to turn it to something like this:
 ```ruby
 def import_from_xml(config, xml_source)
-  context = { config: config, xml_source: xml_source }
-  Flowjob::Flow.run(context) do |flow|
+  Flowjob::Flow.run(config: config, xml_source: xml_source) do |flow|
     flow.parse
     flow.sanitize
     flow.save_product
@@ -41,25 +40,27 @@ end
 class Parse < Flowjob::Jobs::Base
   context_reader :config, :xml_source
   context_writer :raw_object
+
   def call
-    # many lines of code
-    write_context(:raw_object, raw_object)
+    context.raw_object = do_something_with(context.xml_source)
   end
 end
 
 class Sanitize < Flowjob::Jobs::Base
   context_reader :config, :raw_object
   context_writer :sanitized_object
+
   def call
     # many lines of code
-    write_context(:sanitized_object, sanitized_object)
+    context.sanitized_object = sanitize_somehow(context.raw_object)
   end
 end
 
 class BuildProduct < Flowjob::Jobs::Base
   context_reader :sanitized_object
+
   def call
-    product = Product.build_somehow(sanitized_object)
+    product = Product.build_somehow(context.sanitized_object)
   end
 end
 
@@ -69,9 +70,11 @@ end
 1. Because it is much simplier to test. You can test each job in isolation. Just provide only required context as Hash object and write expectation what should appear inside it after job execution:
 
     ```ruby
-      context = { input: 'one' }
-      MultipleByFourJob.new(context).call
-      expect(context[:output]).to eq('eight')
+      subject { MultipleByFourJob.new(input: 'two').call }
+
+      specify do
+        expect(subject.data[:output]).to eq('eight')
+      end
     ```
 2. This is a common situation when you need to access to previously defined data on the some step of the process. Example: writing original xml source into log after import is finished. No problem - just keep the source in global context during the whole process. You don't need to pass data from one method to another or keep it in tons of instance variables.
 
@@ -111,4 +114,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
