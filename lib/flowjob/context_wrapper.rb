@@ -41,7 +41,7 @@ module Flowjob
 
     def raise_forbidden(method)
       raise Flowjob::Errors::ForbiddenContextAccess,
-            "Please define `context_reader: #{method}`"
+            "Please define `context_reader :#{method}`"
     end
 
     def method_is_writer?(method)

@@ -32,7 +32,7 @@ def import_from_xml(config, xml_source)
   Flowjob::Flow.run(config: config, xml_source: xml_source) do |flow|
     flow.parse
     flow.sanitize
-    flow.save_product
+    flow.sanitize_part2
     flow.write_logs
   end
 end
@@ -56,11 +56,11 @@ class Sanitize < Flowjob::Jobs::Base
   end
 end
 
-class BuildProduct < Flowjob::Jobs::Base
-  context_reader :sanitized_object
+class SanitizePart2 < Flowjob::Jobs::Base
+  context_accessor :sanitized_object
 
   def call
-    product = Product.build_somehow(context.sanitized_object)
+    context.sanitized_object = sanitize_somehow(context.sanitized_object)
   end
 end
 
