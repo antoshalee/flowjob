@@ -4,11 +4,9 @@ module Flowjob
   class Flow
     class << self
       def run(context_data, options = {})
-        context = Context.new(context_data.dup)
-
-        yield new(context, options)
-
-        context
+        ContextWrapper.new(context_data.dup)
+                      .tap { |context| yield new(context, options) }
+                      .data
       end
     end
 

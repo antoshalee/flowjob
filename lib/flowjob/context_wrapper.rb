@@ -1,5 +1,5 @@
 module Flowjob
-  class Context
+  class ContextWrapper
     attr_reader :data
 
     def initialize(data)

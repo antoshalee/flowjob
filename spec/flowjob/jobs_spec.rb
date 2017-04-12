@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Flowjob::Flow do
   describe '.context_writer' do
     let(:context_data) { {} }
-    let(:context) { Flowjob::Context.new(context_data) }
+    let(:context) { Flowjob::ContextWrapper.new(context_data) }
 
     context 'job with context' do
       class JobWitContextWriter < Flowjob::Jobs::Base

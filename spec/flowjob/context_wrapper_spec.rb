@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Flowjob::Context do
+describe Flowjob::ContextWrapper do
   let(:data) do
     {
       name: 'John',

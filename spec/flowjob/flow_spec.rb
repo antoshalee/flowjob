@@ -20,8 +20,10 @@ describe Flowjob::Flow do
 
   class Flowjob::Jobs::CheckArg < Flowjob::Jobs::Base
     context_reader :destination, :object
+    context_writer :result
 
-    def call(arg1, arg2)
+    def call(result, _)
+      context.result = result
     end
   end
 
@@ -67,11 +69,11 @@ describe Flowjob::Flow do
   end
 
   it 'returns context' do
-    expect(
-      described_class.run(context_data) do |f|
-        f.check_arg('Foo', 'Bar')
-      end
-    ).to be_instance_of(Flowjob::Context)
+    result = described_class.run(context_data) do |f|
+      f.check_arg('Foo', 'Bar')
+    end
+    expect(result).to be_instance_of(Hash)
+    expect(result).to include(result: 'Foo')
   end
 
   context 'job missing' do
@@ -125,8 +127,8 @@ describe Flowjob::Flow do
     end
 
     it 'changes result context' do
-      expect(subject.data[:first]).to eq true
-      expect(subject.data[:second]).to eq true
+      expect(subject[:first]).to eq true
+      expect(subject[:second]).to eq true
     end
 
     it 'doesnt mutate original context data' do

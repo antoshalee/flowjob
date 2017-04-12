@@ -2,7 +2,7 @@ require 'flowjob/version'
 require 'flowjob/jobs'
 require 'flowjob/jobs/base'
 require 'flowjob/flow'
-require 'flowjob/context'
+require 'flowjob/context_wrapper'
 require 'flowjob/errors'
 
 module Flowjob
