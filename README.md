@@ -73,7 +73,7 @@ end
       subject { MultipleByFourJob.new(input: 'two').call }
 
       specify do
-        expect(subject.data[:output]).to eq('eight')
+        expect(subject[:output]).to eq('eight')
       end
     ```
 2. This is a common situation when you need to access to previously defined data on the some step of the process. Example: writing original xml source into log after import is finished. No problem - just keep the source in global context during the whole process. You don't need to pass data from one method to another or keep it in tons of instance variables.
