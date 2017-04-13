@@ -4,9 +4,10 @@ module Flowjob
       class << self
         attr_accessor :context_readers, :context_writers
 
-        def inherited(base)
-          base.context_readers = Set.new
-          base.context_writers = Set.new
+        def inherited(job_class)
+          %i(readers writers).each do |type|
+            build_accessors(job_class, type)
+          end
         end
 
         def context_reader(*accessors)
@@ -24,6 +25,22 @@ module Flowjob
 
         def desc(desc)
           @desc = desc
+        end
+
+        private
+
+        def build_accessors(job_class, type)
+          job_class.send(
+            "context_#{type}=",
+            parent_accessors(job_class, type) || Set.new
+          )
+        end
+
+        def parent_accessors(job_class, type)
+          return nil unless job_class.superclass
+          accessors = job_class.superclass.send("context_#{type}")
+
+          (accessors && accessors.dup)
         end
       end
 

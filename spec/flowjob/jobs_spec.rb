@@ -55,4 +55,29 @@ describe Flowjob::Flow do
       expect(context.data[:value]).to eq(20)
     end
   end
+
+  context 'with inheritance' do
+    class JobWithAccessorsBase < Flowjob::Jobs::Base
+      context_reader :first_name
+      context_writer :age
+      context_accessor :experience
+    end
+
+    class JobWithAccessorsInherited < JobWithAccessorsBase
+      context_reader :last_name
+      context_writer :result
+      context_accessor :foo
+    end
+
+    let(:job) { JobWithAccessorsInherited.new(context) }
+
+    specify do
+      %i(first_name age= experience experience= last_name result= foo foo=)
+        .each do |method|
+          expect(job.context).to respond_to method
+        end
+
+      expect(job.context).not_to respond_to :something_else
+    end
+  end
 end
