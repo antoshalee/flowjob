@@ -1,51 +1,86 @@
 module Flowjob
   class ContextWrapper
+    extend Forwardable
+
     attr_reader :data
+
+    def_delegators :@resolver, :allow_readers, :allow_writers
 
     def initialize(data)
       @data = data
-      @allowed_readers = []
-      @allowed_writers = []
-    end
-
-    def allow_readers(*readers)
-      @allowed_readers = readers
-    end
-
-    def allow_writers(*writers)
-      @allowed_writers = writers
+      @resolver = MethodResolver.new(self)
     end
 
     def method_missing(method, *args)
-      if method_is_writer?(method)
-        try_to_write(method, args.first)
-      else
-        try_to_read(method)
+      @resolver.resolve(method, args.first)
+    end
+
+    def respond_to_missing?(method, _include_private)
+      @resolver.will_be_resolved?(method)
+    end
+
+    # Methods responsible for accessing are extracted to separate resolver
+    # to be more safe with `method_missing`
+    class MethodResolver
+      attr_reader :data
+
+      def initialize(context)
+        @data = context.data
+        @allowed_readers = []
+        @allowed_writers = []
       end
-    end
 
-    private
+      def allow_readers(*readers)
+        @allowed_readers = readers
+      end
 
-    def try_to_write(method, value)
-      data_key = method[0..-2].to_sym
-      raise_forbidden(data_key) unless @allowed_writers.include?(data_key)
+      def allow_writers(*writers)
+        @allowed_writers = writers
+      end
 
-      @data[data_key] = value
-    end
+      def resolve(method, value)
+        if method_is_writer?(method)
+          write(method, value)
+        else
+          read(method)
+        end
+      end
 
-    def try_to_read(method)
-      raise_forbidden(method) unless @allowed_readers.include?(method)
+      def will_be_resolved?(method)
+        allowed_writer?(method) || allowed_reader?(method)
+      end
 
-      @data[method]
-    end
+      private
 
-    def raise_forbidden(method)
-      raise Flowjob::Errors::ForbiddenContextAccess,
-            "Please define `context_reader :#{method}`"
-    end
+      def write(method, value)
+        raise_forbidden(method) unless allowed_writer?(method)
 
-    def method_is_writer?(method)
-      method.to_s.end_with?('=')
+        @data[method[0..-2].to_sym] = value
+      end
+
+      def read(method)
+        raise_forbidden(method) unless allowed_reader?(method)
+
+        @data[method]
+      end
+
+      def method_is_writer?(method)
+        method.to_s.end_with?('='.freeze)
+      end
+
+      def allowed_writer?(method)
+        return false unless method_is_writer?(method)
+        @allowed_writers.include?(method[0..-2].to_sym)
+      end
+
+      def allowed_reader?(method)
+        @allowed_readers.include?(method)
+      end
+
+      def raise_forbidden(method)
+        raise Flowjob::Errors::ForbiddenContextAccess,
+              "Please define `context_reader :#{method}`"
+      end
     end
   end
 end

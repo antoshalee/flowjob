@@ -27,6 +27,12 @@ describe Flowjob::ContextWrapper do
       expect { context.gender }.to be_forbidden
       expect { context.name = 'Ivan' }.to be_forbidden
     end
+
+    it 'responds to methods' do
+      expect(context).to respond_to(:name)
+      expect(context).to respond_to(:age)
+      expect(context).not_to respond_to(:gender)
+    end
   end
 
   context 'with whitelisted writers' do
@@ -39,7 +45,15 @@ describe Flowjob::ContextWrapper do
       expect { context.name = 'Ivan' }
         .to change(context, :name).from('John').to('Ivan')
       expect { context.age = 25 }.not_to raise_error
+      expect { context.tmp = 45 }.to be_forbidden
+
       expect { context.age }.to be_forbidden
+    end
+
+    it 'responds to methods' do
+      expect(context).to respond_to(:name=)
+      expect(context).to respond_to(:age=)
+      expect(context).not_to respond_to(:gender=)
     end
   end
 end

@@ -100,6 +100,7 @@ describe Flowjob::Flow do
     module MyNamespace
       class FirstJob < Flowjob::Jobs::Base
         context_writer :first
+
         def call
           context.first = true
         end
@@ -107,6 +108,7 @@ describe Flowjob::Flow do
 
       class SecondJob < Flowjob::Jobs::Base
         context_writer :second
+
         def call
           context.second = true
         end
