@@ -79,7 +79,7 @@ module Flowjob
 
       def raise_forbidden(method)
         raise Flowjob::Errors::ForbiddenContextAccess,
-              "Please define `context_reader :#{method}`"
+              "Please define context accessor for `#{method}`"
       end
     end
   end
