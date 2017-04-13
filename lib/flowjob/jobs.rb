@@ -39,8 +39,7 @@ module Flowjob
         def parent_accessors(job_class, type)
           return nil unless job_class.superclass
           accessors = job_class.superclass.send("context_#{type}")
-
-          (accessors && accessors.dup)
+          accessors && accessors.dup
         end
       end
 
