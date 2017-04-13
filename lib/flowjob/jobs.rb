@@ -6,7 +6,7 @@ module Flowjob
 
         def inherited(job_class)
           %i(readers writers).each do |type|
-            build_accessors(job_class, type)
+            job_class.build_accessors(type)
           end
         end
 
@@ -27,19 +27,20 @@ module Flowjob
           @desc = desc
         end
 
-        private
+        protected
 
-        def build_accessors(job_class, type)
-          job_class.send(
+        def build_accessors(type)
+          superclass_accessors = superclass_accessors(type)
+
+          send(
             "context_#{type}=",
-            parent_accessors(job_class, type) || Set.new
+            superclass_accessors && superclass_accessors.dup || Set.new
           )
         end
 
-        def parent_accessors(job_class, type)
-          return nil unless job_class.superclass
-          accessors = job_class.superclass.send("context_#{type}")
-          accessors && accessors.dup
+        def superclass_accessors(type)
+          return nil unless superclass
+          superclass.send("context_#{type}")
         end
       end
 
